@@ -2,6 +2,10 @@ import mongoose from "mongoose";
 
 const conversationSchema = new mongoose.Schema(
   {
+    conversationKey: {
+      type: String,
+    },
+
     participants: [
       {
         type: mongoose.Schema.Types.ObjectId,
@@ -16,6 +20,16 @@ const conversationSchema = new mongoose.Schema(
   },
   {
     timestamps: true,
+  }
+);
+
+conversationSchema.index(
+  { conversationKey: 1 },
+  {
+    unique: true,
+    partialFilterExpression: {
+      conversationKey: { $type: "string" },
+    },
   }
 );
 
