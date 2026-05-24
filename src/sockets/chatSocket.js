@@ -1,5 +1,7 @@
 const onlineUsers = new Map();
 
+const getId = (value) => value?._id?.toString?.() || value?.toString?.();
+
 const chatSocket = (io) => {
   io.on("connection", (socket) => {
     console.log("User connected:", socket.id);
@@ -22,9 +24,32 @@ const chatSocket = (io) => {
       console.log(`Joined room: ${conversationId}`);
     });
 
+    socket.on("leaveConversation", (conversationId) => {
+      socket.leave(conversationId);
+
+      console.log(`Left room: ${conversationId}`);
+    });
+
     // SEND MESSAGE
     socket.on("sendMessage", (message) => {
-      io.to(message.conversation).emit("newMessage", message);
+      const conversation = message.conversation;
+      const conversationId = getId(conversation);
+      const senderId = getId(message.sender);
+
+      if (!conversationId || !conversation?.participants) return;
+
+      conversation.participants.forEach((participant) => {
+        const participantId = getId(participant);
+
+        if (!participantId || participantId === senderId) return;
+
+        socket.to(participantId).emit("conversationUpdated", {
+          conversation,
+          message,
+        });
+      });
+
+      socket.to(conversationId).emit("newMessage", message);
     });
 
     // TYPING
