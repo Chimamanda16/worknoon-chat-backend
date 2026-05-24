@@ -20,7 +20,13 @@ export const sendMessage = async (req, res) => {
       "sender",
       "name email role"
     );
-    await populatedMessage.populate("conversation");
+    await populatedMessage.populate({
+      path: "conversation",
+      populate: {
+        path: "participants",
+        select: "name email role",
+      },
+    });
 
     res.status(201).json(populatedMessage);
   } catch (error) {

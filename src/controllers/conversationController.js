@@ -11,7 +11,12 @@ export const createConversation = async (req, res) => {
     });
 
     if (existingConversation) {
-      return res.json(existingConversation);
+      const populatedConversation = await existingConversation.populate(
+        "participants",
+        "name email role"
+      );
+
+      return res.json(populatedConversation);
     }
 
     const conversation = await Conversation.create({
