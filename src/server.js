@@ -8,12 +8,15 @@ import authRoutes from "./routes/authRoutes.js";
 import testRoutes from "./routes/testRoutes.js";
 import conversationRoutes from "./routes/conversationRoutes.js";
 import messageRoutes from "./routes/messageRoutes.js";
+import chatSocket from "./sockets/chatSocket.js";
 
 dotenv.config();
 
-const app = express();
 
 connectDB();
+
+
+const app = express();
 
 app.use(cors());
 app.use(express.json());
@@ -34,13 +37,7 @@ const io = new Server(server, {
   },
 });
 
-io.on("connection", (socket) => {
-  console.log("User connected:", socket.id);
-
-  socket.on("disconnect", () => {
-    console.log("User disconnected");
-  });
-});
+chatSocket(io);
 
 const PORT = process.env.PORT || 5000;
 

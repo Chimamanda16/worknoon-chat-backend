@@ -20,6 +20,7 @@ export const sendMessage = async (req, res) => {
       "sender",
       "name email role"
     );
+    await populatedMessage.populate("conversation");
 
     res.status(201).json(populatedMessage);
   } catch (error) {
@@ -38,6 +39,32 @@ export const getMessages = async (req, res) => {
       .sort({ createdAt: 1 });
 
     res.json(messages);
+  } catch (error) {
+    res.status(500).json({
+      message: error.message,
+    });
+  }
+};
+
+export const markMessagesAsRead = async (req, res) => {
+  try {
+    const { conversationId } = req.body;
+
+    await Message.updateMany(
+      {
+        conversation: conversationId,
+        readBy: { $ne: req.user._id },
+      },
+      {
+        $push: {
+          readBy: req.user._id,
+        },
+      }
+    );
+
+    res.json({
+      message: "Messages marked as read",
+    });
   } catch (error) {
     res.status(500).json({
       message: error.message,

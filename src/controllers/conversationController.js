@@ -11,7 +11,7 @@ export const createConversation = async (req, res) => {
     });
 
     if (existingConversation) {
-      return res.json({message: "Conversation retrieved", existingConversation});
+      return res.json(existingConversation);
     }
 
     const conversation = await Conversation.create({
@@ -23,7 +23,7 @@ export const createConversation = async (req, res) => {
       "name email role"
     );
 
-    res.status(201).json({message: "Conversation created", populatedConversation});
+    res.status(201).json(populatedConversation);
   } catch (error) {
     res.status(500).json({
       message: error.message,
